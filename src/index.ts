@@ -55,7 +55,7 @@ export const readSpecFile = async (
 
   return (await fetch(new URL(`/server/specs/oas`, options.host), {
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      "Authorization": `Bearer ${access_token}`,
       "Content-Type": `application/json`,
     },
   }).then((response) => response.json())) as unknown;
@@ -126,9 +126,9 @@ export const generateTypeScript = async (
       spec.components.schemas,
     )) {
       const x_collection = (schema_value as Record<string, unknown>)[
-        "x-collection"
+        `x-collection`
       ] as string | undefined;
-      if (typeof x_collection === "string" && x_collection.length > 0) {
+      if (typeof x_collection === `string` && x_collection.length > 0) {
         source += `  ${x_collection}: components["schemas"]["${schema_key}"];\n`;
       }
     }

@@ -54,3 +54,7 @@ import { MyCollections } from "./my-collections.d.ts";
 
 const directus = new Directus<MyCollections>();
 ```
+
+## System Collections
+
+Directus system collections are not included in the output by default. If you add custom fields to a collection like `directus_users`, you can include them in the generated types by using the `--includeSystemCollections` flag.
