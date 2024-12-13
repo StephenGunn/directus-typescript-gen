@@ -20,6 +20,12 @@ const main = async (): Promise<void> => {
       description: `Remote host`,
       type: `string`,
     },
+    includeSystemCollections: {
+      alias: `s`,
+      default: false,
+      description: `Include system collections`,
+      type: `boolean`,
+    },
     outFile: {
       alias: `o`,
       description: `Output file`,
@@ -46,6 +52,7 @@ const main = async (): Promise<void> => {
   const spec = await readSpecFile(argv);
 
   const ts = await generateTypeScript(spec as OpenAPI3, {
+    includeSystemCollections: argv.includeSystemCollections,
     typeName: argv.typeName,
   });
 

@@ -55,13 +55,14 @@ export const readSpecFile = async (
 
   return (await fetch(new URL(`/server/specs/oas`, options.host), {
     headers: {
-      "Authorization": `Bearer ${access_token}`,
+      Authorization: `Bearer ${access_token}`,
       "Content-Type": `application/json`,
     },
   }).then((response) => response.json())) as unknown;
 };
 
 type GenerateTypeScriptOptions = {
+  readonly includeSystemCollections?: boolean;
   readonly typeName: string;
 };
 
@@ -69,7 +70,7 @@ const validIdentifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
 
 export const generateTypeScript = async (
   spec: OpenAPI3,
-  { typeName }: GenerateTypeScriptOptions,
+  { includeSystemCollections, typeName }: GenerateTypeScriptOptions,
 ): Promise<string> => {
   if (!validIdentifier.test(typeName)) {
     throw new Error(`Invalid type name: ${typeName}`);
@@ -115,6 +116,20 @@ export const generateTypeScript = async (
           continue;
         }
         source += `  ${collection}: components["schemas"]["${ref}"][];\n`;
+      }
+    }
+  }
+
+  // Add directus system collections if requested
+  if (spec.components && spec.components.schemas && includeSystemCollections) {
+    for (const [schema_key, schema_value] of Object.entries(
+      spec.components.schemas,
+    )) {
+      const x_collection = (schema_value as Record<string, unknown>)[
+        "x-collection"
+      ] as string | undefined;
+      if (typeof x_collection === "string" && x_collection.length > 0) {
+        source += `  ${x_collection}: components["schemas"]["${schema_key}"];\n`;
       }
     }
   }
