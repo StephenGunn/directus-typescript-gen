@@ -80,6 +80,9 @@ export const generateTypeScript = async (
 
   source += `\n\nexport type ${typeName} = {\n`;
 
+  // Keep a record of discovered collections to avoid duplicates
+  const collections: Record<string, string> = {};
+
   if (spec.paths) {
     for (const [path, pathItem] of Object.entries(spec.paths)) {
       const collectionPathPattern = /^\/items\/(?<collection>[a-zA-Z0-9_]+)$/;
@@ -115,7 +118,10 @@ export const generateTypeScript = async (
         if (typeof ref !== `string` || ref.length === 0) {
           continue;
         }
-        source += `  ${collection}: components["schemas"]["${ref}"][];\n`;
+        // Instead of adding directly to source, store in collections
+        if (!collections[collection]) {
+          collections[collection] = `components["schemas"]["${ref}"][]`;
+        }
       }
     }
   }
@@ -129,9 +135,17 @@ export const generateTypeScript = async (
         `x-collection`
       ] as string | undefined;
       if (typeof x_collection === `string` && x_collection.length > 0) {
-        source += `  ${x_collection}: components["schemas"]["${schema_key}"];\n`;
+        // Only add if not already present
+        if (!collections[x_collection]) {
+          collections[x_collection] = `components["schemas"]["${schema_key}"]`;
+        }
       }
     }
+  }
+
+  // After gathering all collections, write them out once
+  for (const [collectionName, typeDef] of Object.entries(collections)) {
+    source += `  ${collectionName}: ${typeDef};\n`;
   }
 
   source += `};\n`;
