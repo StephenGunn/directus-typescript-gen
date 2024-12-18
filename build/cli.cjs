@@ -122,6 +122,12 @@ export type ${typeName} = {
   }
   source += `};
 `;
+  const toPascalCase = (str) => str.replace(/[_\- ]+/g, ` `).split(` `).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(``);
+  for (const [collectionName, typeDef] of Object.entries(collections)) {
+    const pascalCaseName = toPascalCase(collectionName);
+    source += `export type ${pascalCaseName} = ${typeDef};
+`;
+  }
   return source;
 };
 

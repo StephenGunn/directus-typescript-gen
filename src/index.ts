@@ -150,5 +150,18 @@ export const generateTypeScript = async (
 
   source += `};\n`;
 
+  const toPascalCase = (str: string): string =>
+    str
+      .replace(/[_\- ]+/g, ` `) // Replace separators with space
+      .split(` `)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(``);
+
+  // Iterate over each collection to create individual export types
+  for (const [collectionName, typeDef] of Object.entries(collections)) {
+    const pascalCaseName = toPascalCase(collectionName);
+    source += `export type ${pascalCaseName} = ${typeDef};\n`;
+  }
+
   return source;
 };
