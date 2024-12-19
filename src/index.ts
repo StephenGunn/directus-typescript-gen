@@ -61,6 +61,7 @@ export const readSpecFile = async (
   }).then((response) => response.json())) as unknown;
 };
 
+
 type GenerateTypeScriptOptions = {
   readonly includeSystemCollections?: boolean;
   readonly typeName: string;
@@ -99,16 +100,16 @@ export const generateTypeScript = async (
         `application/json` in pathItem.get.responses[`200`].content &&
         `schema` in pathItem.get.responses[`200`].content[`application/json`] &&
         `properties` in
-          pathItem.get.responses[`200`].content[`application/json`].schema &&
+        Item.get.responses[`200`].content[`application/json`].schema &&
         `data` in
-          pathItem.get.responses[`200`].content[`application/json`].schema
-            .properties &&
+        Item.get.responses[`200`].content[`application/json`].schema
+          perties &&
         `items` in
-          pathItem.get.responses[`200`].content[`application/json`].schema
-            .properties[`data`] &&
+        Item.get.responses[`200`].content[`application/json`].schema
+          perties[`data`] &&
         `$ref` in
-          pathItem.get.responses[`200`].content[`application/json`].schema
-            .properties[`data`].items
+        Item.get.responses[`200`].content[`application/json`].schema
+          perties[`data`].items
       ) {
         const $ref =
           pathItem.get.responses[`200`].content[`application/json`].schema
@@ -141,16 +142,16 @@ export const generateTypeScript = async (
       `application/json` in pathItem.get.responses[`200`].content &&
       `schema` in pathItem.get.responses[`200`].content[`application/json`] &&
       `properties` in
-        pathItem.get.responses[`200`].content[`application/json`].schema &&
+      Item.get.responses[`200`].content[`application/json`].schema &&
       `data` in
-        pathItem.get.responses[`200`].content[`application/json`].schema
-          .properties &&
+      Item.get.responses[`200`].content[`application/json`].schema
+        perties &&
       `items` in
-        pathItem.get.responses[`200`].content[`application/json`].schema
-          .properties[`data`] &&
+      Item.get.responses[`200`].content[`application/json`].schema
+        perties[`data`] &&
       `$ref` in
-        pathItem.get.responses[`200`].content[`application/json`].schema
-          .properties[`data`].items
+      Item.get.responses[`200`].content[`application/json`].schema
+        perties[`data`].items
     ) {
       const $ref =
         pathItem.get.responses[`200`].content[`application/json`].schema

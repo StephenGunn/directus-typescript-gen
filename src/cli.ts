@@ -51,6 +51,8 @@ const main = async (): Promise<void> => {
 
   const spec = await readSpecFile(argv);
 
+  console.log(JSON.stringify(spec, null, 2)); // Add this for debugging
+
   const ts = await generateTypeScript(spec as OpenAPI3, {
     includeSystemCollections: argv.includeSystemCollections,
     typeName: argv.typeName,
