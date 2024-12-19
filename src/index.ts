@@ -126,6 +126,47 @@ export const generateTypeScript = async (
     }
   }
 
+  // fixing relationships
+  const relationshipPathPattern = /^\/relations\/(?<relation>[a-zA-Z0-9_]+)$/;
+  for (const [path, pathItem] of Object.entries(spec.paths ?? {})) {
+    const relation = relationshipPathPattern.exec(path)?.groups?.[`relation`];
+    if (typeof relation !== `string` || relation.length === 0) {
+      continue;
+    }
+    if (
+      `get` in pathItem &&
+      `responses` in pathItem.get &&
+      `200` in pathItem.get.responses &&
+      `content` in pathItem.get.responses[`200`] &&
+      `application/json` in pathItem.get.responses[`200`].content &&
+      `schema` in pathItem.get.responses[`200`].content[`application/json`] &&
+      `properties` in
+        pathItem.get.responses[`200`].content[`application/json`].schema &&
+      `data` in
+        pathItem.get.responses[`200`].content[`application/json`].schema
+          .properties &&
+      `items` in
+        pathItem.get.responses[`200`].content[`application/json`].schema
+          .properties[`data`] &&
+      `$ref` in
+        pathItem.get.responses[`200`].content[`application/json`].schema
+          .properties[`data`].items
+    ) {
+      const $ref =
+        pathItem.get.responses[`200`].content[`application/json`].schema
+          .properties[`data`].items.$ref;
+      const refPattern = /^#\/components\/schemas\/(?<ref>[a-zA-Z0-9_]+)$/;
+      const ref = refPattern.exec($ref)?.groups?.[`ref`];
+      if (typeof ref !== `string` || ref.length === 0) {
+        continue;
+      }
+      // Add relationship to collections
+      if (!collections[relation]) {
+        collections[relation] = `components["schemas"]["${ref}"][]`;
+      }
+    }
+  }
+
   // Add directus system collections if requested
   if (spec.components && spec.components.schemas && includeSystemCollections) {
     for (const [schema_key, schema_value] of Object.entries(
@@ -152,7 +193,7 @@ export const generateTypeScript = async (
 
   const toPascalCase = (str: string): string =>
     str
-      .replace(/[_\- ]+/g, ` `) // Replace separators with space
+      .replace(/[_\- ]+/g, ` `)
       .split(` `)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(``);
